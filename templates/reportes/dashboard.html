@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">Dashboard Administrativo</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="stat bg-base-100 shadow rounded-box">
+            <div class="stat-title">Ingresos hoy</div>
+            <div class="stat-value text-primary">S/ {{ ingresos_hoy }}</div>
+        </div>
+        <div class="stat bg-base-100 shadow rounded-box">
+            <div class="stat-title">Ventas hoy</div>
+            <div class="stat-value">{{ cantidad_ventas_hoy }}</div>
+        </div>
+        <div class="stat bg-base-100 shadow rounded-box">
+            <div class="stat-title">Pedidos pendientes</div>
+            <div class="stat-value text-warning">{{ pedidos_pendientes }}</div>
+        </div>
+        <div class="stat bg-base-100 shadow rounded-box">
+            <div class="stat-title">Repartidores en ruta</div>
+            <div class="stat-value">{{ repartidores_activos }}</div>
+        </div>
+    </div>
+
+    {% if stock_critico %}
+    <div class="alert alert-error mb-6">
+        <span>⚠️ {{ stock_critico.count }} producto(s) en stock crítico:
+        {% for p in stock_critico %}{{ p.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </span>
+    </div>
+    {% endif %}
+
+    <h2 class="text-xl font-bold mb-4">Productos más vendidos</h2>
+    <div class="overflow-x-auto">
+        <table class="table">
+            <thead><tr><th>Producto</th><th>Unidades vendidas</th></tr></thead>
+            <tbody>
+                {% for p in productos_top %}
+                <tr><td>{{ p.producto__nombre }}</td><td>{{ p.total_vendido }}</td></tr>
+                {% empty %}
+                <tr><td colspan="2">Aún no hay ventas registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-6">
+        <a href="{% url 'catalogo:panel_productos' %}" class="btn btn-outline">Gestionar productos</a>
+        <a href="{% url 'reportes:reporte_repartidores' %}" class="btn btn-outline">Ver repartidores</a>
+    </div>
+</div>
+{% endblock %}

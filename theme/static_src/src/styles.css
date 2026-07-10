@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: tiendamass --default;
+}
+
+@plugin "daisyui/theme" {
+  name: "tiendamass";
+  default: true;
+  color-scheme: light;
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(92% 0 0);
+  --color-base-content: oklch(20% 0 0);
+  --color-primary: oklch(35% 0.15 260);        /* azul Tiendas Mass */
+  --color-primary-content: oklch(97% 0.15 95); /* amarillo para texto sobre azul */
+  --color-secondary: oklch(85% 0.18 95);        /* amarillo Tiendas Mass */
+  --color-secondary-content: oklch(20% 0.05 260);
+  --color-accent: oklch(85% 0.18 95);
+  --color-accent-content: oklch(20% 0.05 260);
+  --color-neutral: oklch(20% 0 0);
+  --color-neutral-content: oklch(97% 0 0);
+  --radius-box: 0.5rem;
+  --radius-field: 0.375rem;
+}
+
+/**
+  * A catch-all path to Django template files, JavaScript, and Python files
+  * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
+  *
+  * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
+  * the scope of this path.
+  */
+@source "../../../**/*.{html,py,js}";

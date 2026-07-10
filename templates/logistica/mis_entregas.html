@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Mis entregas - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">Mis entregas asignadas</h1>
+
+    {% for entrega in entregas %}
+    <div class="card bg-base-100 shadow-md mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Pedido {{ entrega.pedido.numero_orden }}</h2>
+            <p>Zona: {{ entrega.zona.nombre }}</p>
+            <p>Dirección: {{ entrega.direccion_entrega }}</p>
+            <p>Estado actual: <span class="badge">{{ entrega.get_estado_display }}</span></p>
+
+            <form method="post" action="{% url 'logistica:actualizar_estado' entrega.id %}" class="flex gap-2 mt-2">
+                {% csrf_token %}
+                <select name="estado" class="select select-bordered select-sm">
+                    <option value="preparado">Preparado</option>
+                    <option value="en_camino">En camino</option>
+                    <option value="entregado">Entregado</option>
+                    <option value="fallida">Entrega fallida</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-500">No tienes entregas pendientes.</p>
+    {% endfor %}
+</div>
+{% endblock %}

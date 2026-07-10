@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Panel de soporte - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">Panel de soporte técnico</h1>
+
+    <form method="get" class="mb-4">
+        <select name="estado" class="select select-bordered" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
+            {% for valor, etiqueta in estados %}
+                <option value="{{ valor }}" {% if valor == estado_filtro %}selected{% endif %}>{{ etiqueta }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <div class="overflow-x-auto">
+        <table class="table">
+            <thead>
+                <tr><th>#</th><th>Cliente</th><th>Asunto</th><th>Categoría</th><th>Estado</th><th>Acción</th></tr>
+            </thead>
+            <tbody>
+                {% for t in tickets %}
+                <tr>
+                    <td>{{ t.id }}</td>
+                    <td>{{ t.cliente.username }}</td>
+                    <td>{{ t.asunto }}</td>
+                    <td>{{ t.get_categoria_display }}</td>
+                    <td>{{ t.get_estado_display }}</td>
+                    <td>
+                        <form method="post" action="{% url 'soporte:atender_ticket' t.id %}" class="flex gap-2">
+                            {% csrf_token %}
+                            <select name="estado" class="select select-bordered select-sm">
+                                <option value="en_proceso">En proceso</option>
+                                <option value="resuelto">Resuelto</option>
+                                <option value="cerrado">Cerrado</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Repartidores - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">Desempeño de repartidores</h1>
+    <div class="overflow-x-auto">
+        <table class="table">
+            <thead>
+                <tr><th>Repartidor</th><th>Zona</th><th>Estado</th><th>Entregadas</th><th>Fallidas</th></tr>
+            </thead>
+            <tbody>
+                {% for r in repartidores %}
+                <tr>
+                    <td>{{ r.empleado.usuario.username }}</td>
+                    <td>{{ r.zona.nombre|default:"-" }}</td>
+                    <td>{{ r.get_estado_display }}</td>
+                    <td>{{ r.entregas_completadas }}</td>
+                    <td>{{ r.entregas_fallidas }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

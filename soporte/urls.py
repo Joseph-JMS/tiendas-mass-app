@@ -1,0 +1,12 @@
+from django.urls import path
+
+from soporte import views
+
+app_name = 'soporte'
+
+urlpatterns = [
+    path('nuevo/', views.crear_ticket, name='crear_ticket'),
+    path('mis-tickets/', views.mis_tickets, name='mis_tickets'),
+    path('panel/', views.lista_tickets, name='lista_tickets'),
+    path('panel/<int:ticket_id>/atender/', views.atender_ticket, name='atender_ticket'),
+]

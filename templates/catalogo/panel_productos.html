@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Panel de productos - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Gestión de productos</h1>
+        <a href="{% url 'catalogo:crear_producto' %}" class="btn btn-primary">+ Nuevo producto</a>
+    </div>
+
+    {% if stock_bajo %}
+    <div class="alert alert-warning mb-4">
+        <span>⚠️ {{ stock_bajo.count }} producto(s) con stock bajo.</span>
+    </div>
+    {% endif %}
+
+    {% if proximos_vencer %}
+    <div class="alert alert-error mb-4">
+        <span>⏰ {{ proximos_vencer.count }} producto(s) próximos a vencer (7 días).</span>
+    </div>
+    {% endif %}
+
+    <div class="overflow-x-auto">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th>
+                    <th>Vencimiento</th><th>Estado</th><th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.categoria.nombre }}</td>
+                    <td>S/ {{ producto.precio }}</td>
+                    <td>
+                        {{ producto.stock }}
+                        {% if producto.stock_bajo %}<span class="badge badge-warning badge-sm">bajo</span>{% endif %}
+                    </td>
+                    <td>{{ producto.fecha_vencimiento|default:"-" }}</td>
+                    <td>
+                        {% if producto.activo %}
+                            <span class="badge badge-success">Activo</span>
+                        {% else %}
+                            <span class="badge badge-neutral">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="flex gap-2">
+                        <a href="{% url 'catalogo:editar_producto' producto.id %}" class="btn btn-sm">Editar</a>
+                        <form method="post" action="{% url 'catalogo:eliminar_producto' producto.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-error">Desactivar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

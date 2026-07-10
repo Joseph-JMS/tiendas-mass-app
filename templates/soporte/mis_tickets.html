@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Mis tickets - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Mis tickets</h1>
+        <a href="{% url 'soporte:crear_ticket' %}" class="btn btn-primary">+ Nuevo ticket</a>
+    </div>
+    {% for t in tickets %}
+    <div class="card bg-base-100 shadow-md mb-3">
+        <div class="card-body">
+            <h2 class="card-title">#{{ t.id }} - {{ t.asunto }}</h2>
+            <p>{{ t.descripcion }}</p>
+            <span class="badge">{{ t.get_estado_display }}</span>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-500">No tienes tickets registrados.</p>
+    {% endfor %}
+</div>
+{% endblock %}

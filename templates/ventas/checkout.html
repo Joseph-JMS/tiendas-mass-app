@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6 max-w-lg">
+    <h1 class="text-2xl font-bold mb-6">Confirmar pedido</h1>
+    <p class="mb-4">Subtotal productos: <span class="font-bold">S/ {{ carrito.total }}</span></p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label class="label">Zona de entrega</label>
+        <select name="zona" class="select select-bordered w-full mb-4" required>
+            <option value="">Selecciona tu zona</option>
+            {% for zona in zonas %}
+                <option value="{{ zona.id }}">{{ zona.nombre }} - Envío S/ {{ zona.tarifa_envio }} ({{ zona.tiempo_estimado_min }} min aprox.)</option>
+            {% endfor %}
+        </select>
+
+        <label class="label">Dirección de entrega</label>
+        <input type="text" name="direccion" placeholder="Av. Ejemplo 123, referencia..."
+               class="input input-bordered w-full mb-6" required>
+
+        <button type="submit" class="btn btn-primary w-full">Confirmar pedido</button>
+    </form>
+</div>
+{% endblock %}
