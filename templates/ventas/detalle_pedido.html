@@ -66,6 +66,16 @@
                 <p class="text-xl font-bold text-primary">Total: S/ {{ pedido.total }}</p>
             </div>
 
+            {% if not pedido.pago %}
+            <div class="alert alert-warning mt-4">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Este pedido aún no ha sido pagado.</span>
+                <a href="{% url 'pagos:procesar' pedido.id %}" class="btn btn-sm btn-warning ml-auto">
+                    Pagar ahora
+                </a>
+            </div>
+            {% endif %}
+
             {% if pedido.pago %}
             <div class="mt-4 pt-4 border-t border-base-300 text-sm space-y-1">
                 <p class="flex items-center gap-2"><i class="bi bi-credit-card text-primary"></i> Método de pago: {{ pedido.pago.get_metodo_display }}</p>

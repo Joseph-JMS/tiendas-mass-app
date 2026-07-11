@@ -30,9 +30,15 @@
                             </td>
                             <td class="font-medium">S/ {{ pedido.total }}</td>
                             <td>
-                                <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-sm btn-outline btn-primary">
-                                    <i class="bi bi-eye"></i> Ver detalle
-                                </a>
+                                {% if not pedido.pago %}
+                                    <a href="{% url 'pagos:procesar' pedido.id %}" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-credit-card"></i> Completar pago
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-sm btn-outline btn-primary">
+                                        <i class="bi bi-eye"></i> Ver detalle
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
