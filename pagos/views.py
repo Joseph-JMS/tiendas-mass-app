@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
 
+from catalogo.models import Producto
 from logistica.models import Zona, Entrega
 from pagos.models import Pago, Comprobante
 from usuarios.models import PerfilRepartidor
@@ -26,6 +27,23 @@ def procesar_pago(request, pedido_id):
             return redirect('pagos:procesar', pedido_id=pedido.id)
 
         with transaction.atomic():
+            detalles = pedido.detalles.select_related('producto')
+            for detalle in detalles:
+                producto = Producto.objects.select_for_update().get(id=detalle.producto_id)
+                if detalle.cantidad > producto.stock:
+                    transaction.set_rollback(True)
+                    messages.error(
+                        request,
+                        f"Lo sentimos, '{producto.nombre}' ya no tiene stock suficiente. "
+                        f"Tu pedido ha sido cancelado, no se realizó ningún cobro."
+                    )
+                    return redirect('ventas:cancelar_pedido', pedido_id=pedido.id)
+
+            for detalle in detalles:
+                producto = detalle.producto
+                producto.stock -= detalle.cantidad
+                producto.save(update_fields=['stock'])
+
             pago = Pago.objects.create(
                 pedido=pedido,
                 metodo=metodo,
@@ -33,7 +51,6 @@ def procesar_pago(request, pedido_id):
             )
             pago.confirmar(referencia=f"SIM-{pago.id:06d}")
 
-            # IGV solo sobre productos, no sobre el envío (RF12, práctica correcta en Perú)
             igv = Comprobante.calcular_igv(pedido.subtotal_productos)
             total_con_igv = pedido.subtotal_productos + igv + pedido.costo_envio
 
@@ -54,7 +71,6 @@ def procesar_pago(request, pedido_id):
                 total_con_igv=total_con_igv,
             )
 
-            # Asignación de repartidor por zona real (RF17)
             repartidor_disponible = PerfilRepartidor.objects.filter(
                 zona=pedido.zona,
                 estado=PerfilRepartidor.Estado.DISPONIBLE

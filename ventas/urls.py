@@ -12,4 +12,5 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('mis-pedidos/', views.mis_pedidos, name='mis_pedidos'),
     path('mis-pedidos/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
+    path('mis-pedidos/<int:pedido_id>/cancelar/', views.cancelar_pedido, name='cancelar_pedido'),
 ]

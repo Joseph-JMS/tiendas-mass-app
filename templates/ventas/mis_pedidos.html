@@ -29,13 +29,22 @@
                                 </span>
                             </td>
                             <td class="font-medium">S/ {{ pedido.total }}</td>
-                            <td>
+                            <td class="w-48">
                                 {% if not pedido.pago %}
-                                    <a href="{% url 'pagos:procesar' pedido.id %}" class="btn btn-sm btn-warning">
-                                        <i class="bi bi-credit-card"></i> Completar pago
-                                    </a>
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        <a href="{% url 'pagos:procesar' pedido.id %}" class="btn btn-sm btn-warning flex-1">
+                                            <i class="bi bi-credit-card"></i> Pagar
+                                        </a>
+                                        <form method="post" action="{% url 'ventas:cancelar_pedido' pedido.id %}"
+                                              onsubmit="return confirm('¿Seguro que deseas cancelar este pedido?');" class="flex-1">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-error btn-outline w-full">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 {% else %}
-                                    <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-sm btn-outline btn-primary">
+                                    <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-sm btn-outline btn-primary w-full">
                                         <i class="bi bi-eye"></i> Ver detalle
                                     </a>
                                 {% endif %}

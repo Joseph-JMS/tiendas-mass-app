@@ -67,12 +67,23 @@
             </div>
 
             {% if not pedido.pago %}
-            <div class="alert alert-warning mt-4">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span>Este pedido aún no ha sido pagado.</span>
-                <a href="{% url 'pagos:procesar' pedido.id %}" class="btn btn-sm btn-warning ml-auto">
-                    Pagar ahora
-                </a>
+            <div class="alert alert-warning mt-4 flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Este pedido aún no ha sido pagado.</span>
+                </div>
+                <div class="flex gap-2 sm:ml-auto">
+                    <a href="{% url 'pagos:procesar' pedido.id %}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-credit-card"></i> Pagar ahora
+                    </a>
+                    <form method="post" action="{% url 'ventas:cancelar_pedido' pedido.id %}"
+                          onsubmit="return confirm('¿Seguro que deseas cancelar este pedido?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-error btn-outline">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </button>
+                    </form>
+                </div>
             </div>
             {% endif %}
 

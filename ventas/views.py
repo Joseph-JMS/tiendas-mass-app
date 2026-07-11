@@ -104,8 +104,6 @@ def checkout(request):
                     cantidad=item['cantidad'],
                     precio_unitario=item['precio'],
                 )
-                producto.stock -= item['cantidad']
-                producto.save(update_fields=['stock'])
 
             pedido.calcular_total()
             carrito.vaciar()
@@ -114,3 +112,14 @@ def checkout(request):
         return redirect('pagos:procesar', pedido_id=pedido.id)
 
     return render(request, 'ventas/checkout.html', {'carrito': carrito, 'zonas': zonas})
+
+
+@login_required
+@require_POST
+def cancelar_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id, cliente=request.user)
+    if not hasattr(pedido, 'pago'):
+        pedido.estado = Pedido.Estado.CANCELADO
+        pedido.save(update_fields=['estado'])
+        messages.success(request, "Pedido cancelado correctamente.")
+    return redirect('ventas:mis_pedidos')
