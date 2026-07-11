@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Mis pedidos - Tienda Mass{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold text-primary mb-6">
+        <i class="bi bi-bag-check"></i> Mis pedidos
+    </h1>
+
+    {% if pedidos %}
+    <div class="overflow-x-auto">
+        <table class="table bg-base-100 shadow-md rounded-box">
+            <thead>
+                <tr>
+                    <th>N° Orden</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos %}
+                <tr>
+                    <td class="font-medium">{{ pedido.numero_orden }}</td>
+                    <td>{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <span class="badge
+                            {% if pedido.estado == 'entregado' %}badge-success
+                            {% elif pedido.estado == 'cancelado' %}badge-error
+                            {% else %}badge-info{% endif %}">
+                            {{ pedido.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>S/ {{ pedido.total }}</td>
+                    <td>
+                        <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-sm btn-outline btn-primary">
+                            <i class="bi bi-eye"></i> Ver detalle
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-10">
+        <i class="bi bi-bag-x text-4xl block mb-2"></i>
+        Aún no tienes pedidos registrados.
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

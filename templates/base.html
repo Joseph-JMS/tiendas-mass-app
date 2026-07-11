@@ -22,6 +22,7 @@
                     {% if user.rol == 'cliente' %}
                         <li><a href="{% url 'catalogo:lista_productos' %}"><i class="bi bi-grid"></i> Catálogo</a></li>
                         <li><a href="{% url 'ventas:ver_carrito' %}"><i class="bi bi-cart3"></i> Carrito</a></li>
+                        <li><a href="{% url 'ventas:mis_pedidos' %}"><i class="bi bi-bag-check"></i> Mis pedidos</a></li>
                         <li><a href="{% url 'soporte:mis_tickets' %}"><i class="bi bi-headset"></i> Soporte</a></li>
                     {% elif user.rol == 'admin' or user.rol == 'empleado' %}
                         <li><a href="{% url 'reportes:dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>

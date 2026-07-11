@@ -11,6 +11,17 @@ from ventas.models import Pedido, DetallePedido
 
 
 @login_required
+def mis_pedidos(request):
+    pedidos = Pedido.objects.filter(cliente=request.user).order_by('-fecha_creacion')
+    return render(request, 'ventas/mis_pedidos.html', {'pedidos': pedidos})
+
+
+@login_required
+def detalle_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id, cliente=request.user)
+    return render(request, 'ventas/detalle_pedido.html', {'pedido': pedido})
+
+@login_required
 @require_POST
 def agregar_al_carrito(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, activo=True)
