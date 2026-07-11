@@ -1,21 +1,47 @@
 {% extends 'base.html' %}
 {% block title %}Mis tickets - Tienda Mass{% endblock %}
 {% block content %}
-<div class="container mx-auto p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Mis tickets</h1>
-        <a href="{% url 'soporte:crear_ticket' %}" class="btn btn-primary">+ Nuevo ticket</a>
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-headset"></i> Mis tickets de soporte</h1>
+    <p class="opacity-90 text-sm">Consulta el estado de tus solicitudes</p>
+</div>
+
+<div class="container mx-auto p-6 max-w-3xl">
+    <div class="flex justify-end mb-4">
+        <a href="{% url 'soporte:crear_ticket' %}" class="btn btn-primary border-none">
+            <i class="bi bi-plus-circle"></i> Nuevo ticket
+        </a>
     </div>
-    {% for t in tickets %}
-    <div class="card bg-base-100 shadow-md mb-3">
-        <div class="card-body">
-            <h2 class="card-title">#{{ t.id }} - {{ t.asunto }}</h2>
-            <p>{{ t.descripcion }}</p>
-            <span class="badge">{{ t.get_estado_display }}</span>
+
+    {% if tickets %}
+        {% for t in tickets %}
+        <div class="card bg-base-100 shadow-md mb-4">
+            <div class="card-body">
+                <div class="flex justify-between items-start">
+                    <h2 class="card-title text-base">
+                        <i class="bi bi-ticket-detailed text-primary"></i> #{{ t.id }} - {{ t.asunto }}
+                    </h2>
+                    <span class="badge
+                        {% if t.estado == 'resuelto' or t.estado == 'cerrado' %}badge-success
+                        {% elif t.estado == 'en_proceso' %}badge-warning
+                        {% else %}badge-info{% endif %}">
+                        {{ t.get_estado_display }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 flex items-center gap-1">
+                    <i class="bi bi-tag"></i> {{ t.get_categoria_display }}
+                </p>
+                <p class="text-sm mt-2">{{ t.descripcion }}</p>
+            </div>
         </div>
-    </div>
-    {% empty %}
-    <p class="text-gray-500">No tienes tickets registrados.</p>
-    {% endfor %}
+        {% endfor %}
+    {% else %}
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body text-center py-16 text-gray-500">
+                <i class="bi bi-inbox text-5xl block mb-3"></i>
+                <p>No tienes tickets registrados.</p>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
