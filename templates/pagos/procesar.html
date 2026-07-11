@@ -1,19 +1,78 @@
 {% extends 'base.html' %}
 {% block title %}Pagar pedido - Tienda Mass{% endblock %}
 {% block content %}
-<div class="container mx-auto p-6 max-w-lg">
-    <h1 class="text-2xl font-bold mb-4">Pagar pedido {{ pedido.numero_orden }}</h1>
-    <p class="mb-4">Total: <span class="font-bold">S/ {{ pedido.total }}</span></p>
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-credit-card"></i> Elige tu método de pago</h1>
+    <p class="opacity-90 text-sm">Pedido {{ pedido.numero_orden }}</p>
+</div>
 
-    <form method="post">
-        {% csrf_token %}
-        <label class="label">Selecciona método de pago</label>
-        <select name="metodo" class="select select-bordered w-full mb-4" required>
-            {% for valor, etiqueta in metodos %}
-                <option value="{{ valor }}">{{ etiqueta }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary w-full">Pagar ahora</button>
-    </form>
+<div class="container mx-auto p-6 max-w-2xl">
+    <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-base-300">
+                <span class="text-gray-500">Total a pagar</span>
+                <span class="text-2xl font-bold text-primary">S/ {{ pedido.total }}</span>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                    <label class="metodo-pago-card">
+                        <input type="radio" name="metodo" value="yape" class="hidden peer" required>
+                        <div class="card bg-base-200 border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 cursor-pointer transition-all hover:shadow-md">
+                            <div class="card-body items-center text-center p-4">
+                                <i class="bi bi-phone text-3xl text-primary"></i>
+                                <span class="text-sm font-medium mt-1">Yape</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="metodo-pago-card">
+                        <input type="radio" name="metodo" value="plin" class="hidden peer" required>
+                        <div class="card bg-base-200 border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 cursor-pointer transition-all hover:shadow-md">
+                            <div class="card-body items-center text-center p-4">
+                                <i class="bi bi-phone-vibrate text-3xl text-primary"></i>
+                                <span class="text-sm font-medium mt-1">Plin</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="metodo-pago-card">
+                        <input type="radio" name="metodo" value="tarjeta" class="hidden peer" required>
+                        <div class="card bg-base-200 border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 cursor-pointer transition-all hover:shadow-md">
+                            <div class="card-body items-center text-center p-4">
+                                <i class="bi bi-credit-card-2-front text-3xl text-primary"></i>
+                                <span class="text-sm font-medium mt-1">Tarjeta</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="metodo-pago-card">
+                        <input type="radio" name="metodo" value="transferencia" class="hidden peer" required>
+                        <div class="card bg-base-200 border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 cursor-pointer transition-all hover:shadow-md">
+                            <div class="card-body items-center text-center p-4">
+                                <i class="bi bi-bank text-3xl text-primary"></i>
+                                <span class="text-sm font-medium mt-1">Transferencia</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="metodo-pago-card">
+                        <input type="radio" name="metodo" value="contra_entrega" class="hidden peer" required>
+                        <div class="card bg-base-200 border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 cursor-pointer transition-all hover:shadow-md">
+                            <div class="card-body items-center text-center p-4">
+                                <i class="bi bi-cash-coin text-3xl text-primary"></i>
+                                <span class="text-sm font-medium mt-1 text-center">Contra entrega</span>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full border-none">
+                    <i class="bi bi-lock-fill"></i> Pagar ahora
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

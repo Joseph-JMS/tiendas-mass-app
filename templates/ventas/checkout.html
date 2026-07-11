@@ -1,25 +1,49 @@
 {% extends 'base.html' %}
 {% block title %}Checkout - Tienda Mass{% endblock %}
 {% block content %}
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-bag-check"></i> Confirmar pedido</h1>
+    <p class="opacity-90 text-sm">Indícanos dónde y a quién entregamos tu compra</p>
+</div>
+
 <div class="container mx-auto p-6 max-w-lg">
-    <h1 class="text-2xl font-bold mb-6">Confirmar pedido</h1>
-    <p class="mb-4">Subtotal productos: <span class="font-bold">S/ {{ carrito.total }}</span></p>
+    <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-base-300">
+                <span class="text-gray-500">Subtotal productos</span>
+                <span class="text-xl font-bold text-primary">S/ {{ carrito.total }}</span>
+            </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <label class="label">Zona de entrega</label>
-        <select name="zona" class="select select-bordered w-full mb-4" required>
-            <option value="">Selecciona tu zona</option>
-            {% for zona in zonas %}
-                <option value="{{ zona.id }}">{{ zona.nombre }} - Envío S/ {{ zona.tarifa_envio }} ({{ zona.tiempo_estimado_min }} min aprox.)</option>
-            {% endfor %}
-        </select>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="form-control w-full">
+                    <label class="label pb-1">
+                        <span class="label-text font-medium"><i class="bi bi-signpost"></i> Zona de entrega</span>
+                    </label>
+                    <select name="zona" class="select select-bordered bg-base-200 w-full" required>
+                        <option value="">Selecciona tu zona</option>
+                        {% for zona in zonas %}
+                            <option value="{{ zona.id }}">
+                                {{ zona.nombre }} — Envío S/ {{ zona.tarifa_envio }} ({{ zona.tiempo_estimado_min }} min aprox.)
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-        <label class="label">Dirección de entrega</label>
-        <input type="text" name="direccion" placeholder="Av. Ejemplo 123, referencia..."
-               class="input input-bordered w-full mb-6" required>
+                <div class="form-control w-full">
+                    <label class="label pb-1">
+                        <span class="label-text font-medium"><i class="bi bi-geo-alt"></i> Dirección de entrega</span>
+                    </label>
+                    <input type="text" name="direccion" placeholder="Av. Ejemplo 123, referencia..."
+                           class="input input-bordered bg-base-200 w-full focus:outline-none focus:bg-base-100 focus:border-primary focus:ring-1 focus:ring-primary"
+                           required>
+                </div>
 
-        <button type="submit" class="btn btn-primary w-full">Confirmar pedido</button>
-    </form>
+                <button type="submit" class="btn btn-primary w-full border-none mt-2">
+                    <i class="bi bi-arrow-right-circle"></i> Continuar al pago
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
