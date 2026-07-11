@@ -13,7 +13,7 @@
             <div class="overflow-x-auto">
                 <table class="table">
                     <thead>
-                        <tr><th>N° Orden</th><th>Fecha</th><th>Estado</th><th>Total</th><th></th></tr>
+                        <tr><th>N° Orden</th><th>Fecha</th><th>Estado</th><th>Total</th><th>Acciones</th></tr>
                     </thead>
                     <tbody>
                         {% for pedido in pedidos %}
@@ -30,18 +30,45 @@
                             </td>
                             <td class="font-medium">S/ {{ pedido.total }}</td>
                             <td class="w-48">
-                                {% if not pedido.pago %}
+                                {% if pedido.estado == 'cancelado' %}
+                                    <span class="text-sm text-gray-400 italic">Sin acciones</span>
+                                {% elif not pedido.pago %}
                                     <div class="flex flex-col sm:flex-row gap-2">
                                         <a href="{% url 'pagos:procesar' pedido.id %}" class="btn btn-sm btn-warning flex-1">
                                             <i class="bi bi-credit-card"></i> Pagar
                                         </a>
-                                        <form method="post" action="{% url 'ventas:cancelar_pedido' pedido.id %}"
-                                              onsubmit="return confirm('¿Seguro que deseas cancelar este pedido?');" class="flex-1">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-error btn-outline w-full">
-                                                <i class="bi bi-x-circle"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-error btn-outline flex-1"
+                                                onclick="document.getElementById('modal-cancelar-{{ pedido.id }}').showModal()">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+
+                                        <dialog id="modal-cancelar-{{ pedido.id }}" class="modal">
+                                            <div class="modal-box">
+                                                <h3 class="font-bold text-lg flex items-center gap-2">
+                                                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                                    Cancelar pedido
+                                                </h3>
+                                                <p class="py-3 text-sm text-gray-500">
+                                                    ¿Seguro que deseas cancelar el pedido
+                                                    <span class="font-medium text-base-content">{{ pedido.numero_orden }}</span>?
+                                                    Esta acción no se puede deshacer.
+                                                </p>
+                                                <div class="modal-action">
+                                                    <form method="dialog">
+                                                        <button class="btn btn-sm">Volver</button>
+                                                    </form>
+                                                    <form method="post" action="{% url 'ventas:cancelar_pedido' pedido.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-error">
+                                                            <i class="bi bi-x-circle"></i> Sí, cancelar
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <form method="dialog" class="modal-backdrop">
+                                                <button>cerrar</button>
+                                            </form>
+                                        </dialog>
                                     </div>
                                 {% else %}
                                     <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-sm btn-outline btn-primary w-full">
