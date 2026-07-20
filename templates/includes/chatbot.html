@@ -1,0 +1,171 @@
+<div id="chatbot-burbuja" class="fixed bottom-6 right-6 z-50">
+    <button id="chatbot-toggle" class="btn btn-circle btn-primary btn-lg shadow-lg border-none">
+        <i class="bi bi-chat-dots-fill text-2xl"></i>
+    </button>
+</div>
+
+<div id="chatbot-ventana" class="fixed bottom-24 right-6 z-50 hidden w-80 sm:w-96 card bg-base-100 shadow-2xl border border-base-300">
+    <div class="bg-primary text-primary-content p-4 rounded-t-2xl flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <i class="bi bi-shop text-xl text-secondary"></i>
+            <span class="font-bold">Asistente Tienda Mass</span>
+        </div>
+        <button id="chatbot-cerrar" class="btn btn-ghost btn-xs btn-circle text-primary-content">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div id="chatbot-mensajes" class="p-4 h-72 overflow-y-auto space-y-3 bg-base-200/50"></div>
+
+    <div id="chatbot-opciones" class="p-3 border-t border-base-300 flex flex-wrap gap-2"></div>
+
+    <div class="p-3 border-t border-base-300 flex gap-2">
+        <input type="text" id="chatbot-input" placeholder="Escribe tu pregunta..."
+               class="input input-bordered input-sm bg-base-200 flex-1 focus:outline-none focus:border-primary">
+        <button id="chatbot-enviar" class="btn btn-sm btn-primary border-none">
+            <i class="bi bi-send"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+(function () {
+    const arbol = {
+        inicio: {
+            mensaje: "¡Hola! Soy el asistente virtual de Tienda Mass. ¿En qué puedo ayudarte? También puedes escribirme tu pregunta directamente.",
+            opciones: [
+                { texto: "Horarios de atención", ir: "horarios" },
+                { texto: "Métodos de pago", ir: "pagos" },
+                { texto: "Zonas y tiempos de entrega", ir: "entregas" },
+                { texto: "¿Cómo hago un pedido?", ir: "pedido" },
+                { texto: "Hablar con soporte", ir: "soporte" },
+            ]
+        },
+        horarios: {
+            mensaje: "Atendemos todos los días de 7:00 a.m. a 11:00 p.m. Nuestra tienda online está disponible las 24 horas para que hagas tus pedidos cuando quieras.",
+            opciones: [{ texto: "⬅ Volver al inicio", ir: "inicio" }]
+        },
+        pagos: {
+            mensaje: "Aceptamos Yape, Plin, tarjetas Visa/MasterCard, transferencia bancaria y pago contra entrega.",
+            opciones: [{ texto: "⬅ Volver al inicio", ir: "inicio" }]
+        },
+        entregas: {
+            mensaje: "Realizamos entregas en distintas zonas de Lima (Cercado, Norte, Sur, Este), cada una con su propia tarifa y tiempo estimado.",
+            opciones: [{ texto: "⬅ Volver al inicio", ir: "inicio" }]
+        },
+        pedido: {
+            mensaje: "Es muy fácil: 1) Explora el catálogo, 2) Agrega productos a tu carrito, 3) Ve al checkout y elige tu zona y dirección, 4) Selecciona tu método de pago, 5) ¡Listo!",
+            opciones: [
+                { texto: "Ir al catálogo", ir: "link_catalogo" },
+                { texto: "⬅ Volver al inicio", ir: "inicio" }
+            ]
+        },
+        soporte: {
+            mensaje: "Si necesitas ayuda personalizada, puedes crear un ticket de soporte y nuestro equipo te contactará a la brevedad.",
+            opciones: [
+                { texto: "Crear ticket de soporte", ir: "link_soporte" },
+                { texto: "⬅ Volver al inicio", ir: "inicio" }
+            ]
+        },
+    };
+
+    const enlaces = {
+        link_catalogo: "/catalogo/",
+        link_soporte: "/soporte/nuevo/",
+    };
+
+    const toggle = document.getElementById('chatbot-toggle');
+    const ventana = document.getElementById('chatbot-ventana');
+    const cerrar = document.getElementById('chatbot-cerrar');
+    const mensajesDiv = document.getElementById('chatbot-mensajes');
+    const opcionesDiv = document.getElementById('chatbot-opciones');
+    const input = document.getElementById('chatbot-input');
+    const enviarBtn = document.getElementById('chatbot-enviar');
+
+    let abierto = false;
+
+    function agregarMensajeBot(texto) {
+        const div = document.createElement('div');
+        div.className = 'chat chat-start';
+        div.innerHTML = `<div class="chat-bubble chat-bubble-primary text-sm">${texto}</div>`;
+        mensajesDiv.appendChild(div);
+        mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+    }
+
+    function agregarMensajeUsuario(texto) {
+        const div = document.createElement('div');
+        div.className = 'chat chat-end';
+        div.innerHTML = `<div class="chat-bubble chat-bubble-secondary text-sm">${texto}</div>`;
+        mensajesDiv.appendChild(div);
+        mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+    }
+
+    function mostrarNodo(clave) {
+        const nodo = arbol[clave];
+        agregarMensajeBot(nodo.mensaje);
+
+        opcionesDiv.innerHTML = '';
+        nodo.opciones.forEach(opcion => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-xs btn-outline btn-primary';
+            btn.textContent = opcion.texto;
+            btn.onclick = () => {
+                agregarMensajeUsuario(opcion.texto);
+                if (enlaces[opcion.ir]) {
+                    window.location.href = enlaces[opcion.ir];
+                    return;
+                }
+                setTimeout(() => mostrarNodo(opcion.ir), 300);
+            };
+            opcionesDiv.appendChild(btn);
+        });
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    async function enviarMensajeLibre() {
+        const texto = input.value.trim();
+        if (!texto) return;
+
+        agregarMensajeUsuario(texto);
+        input.value = '';
+
+        try {
+            const response = await fetch('/soporte/chatbot/responder/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ mensaje: texto }),
+            });
+            const data = await response.json();
+            agregarMensajeBot(data.respuesta);
+        } catch (error) {
+            agregarMensajeBot("Ocurrió un error. Intenta de nuevo o contacta soporte.");
+        }
+    }
+
+    toggle.addEventListener('click', () => {
+        abierto = !abierto;
+        ventana.classList.toggle('hidden', !abierto);
+        if (abierto && mensajesDiv.children.length === 0) {
+            mostrarNodo('inicio');
+        }
+    });
+
+    cerrar.addEventListener('click', () => {
+        abierto = false;
+        ventana.classList.add('hidden');
+    });
+
+    enviarBtn.addEventListener('click', enviarMensajeLibre);
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') enviarMensajeLibre();
+    });
+})();
+</script>

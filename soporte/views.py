@@ -1,11 +1,14 @@
+import json
 from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
+from soporte.chatbot import obtener_respuesta
 from soporte.forms import TicketForm
 from soporte.models import Ticket, LogError
 from usuarios.decorators import requiere_rol
@@ -132,3 +135,13 @@ def registrar_log_prueba(request):
         )
         messages.success(request, "Log de prueba registrado correctamente.")
     return redirect('soporte:panel_mantenimiento')
+
+
+@login_required
+def chatbot_responder(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        mensaje = data.get('mensaje', '')
+        respuesta = obtener_respuesta(mensaje)
+        return JsonResponse({'respuesta': respuesta})
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
