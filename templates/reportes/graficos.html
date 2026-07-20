@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Reportes - Tienda Mass{% endblock %}
+{% block content %}
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-bar-chart-line"></i> Reportes y análisis</h1>
+    <p class="opacity-90 text-sm">Visualiza el rendimiento de tu negocio</p>
+</div>
+
+<div class="container mx-auto p-6">
+
+    <div class="card bg-base-100 shadow-md mb-6">
+        <div class="card-body py-4">
+            <form method="get" class="flex items-center gap-3">
+                <label class="label-text font-medium"><i class="bi bi-calendar-range"></i> Periodo:</label>
+                <select name="dias" class="select select-bordered select-sm bg-base-200" onchange="this.form.submit()">
+                    <option value="7" {% if dias == 7 %}selected{% endif %}>Últimos 7 días</option>
+                    <option value="30" {% if dias == 30 %}selected{% endif %}>Últimos 30 días</option>
+                    <option value="90" {% if dias == 90 %}selected{% endif %}>Últimos 90 días</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <h2 class="card-title text-base mb-3"><i class="bi bi-graph-up text-primary"></i> Ingresos por día</h2>
+                <canvas id="chartVentasDia"></canvas>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <h2 class="card-title text-base mb-3"><i class="bi bi-trophy text-primary"></i> Productos más vendidos</h2>
+                <canvas id="chartTopProductos"></canvas>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <h2 class="card-title text-base mb-3"><i class="bi bi-clock text-primary"></i> Ventas por horario</h2>
+                <canvas id="chartHorario"></canvas>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <h2 class="card-title text-base mb-3"><i class="bi bi-pie-chart text-primary"></i> Pedidos por estado</h2>
+                <canvas id="chartEstados"></canvas>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-md lg:col-span-2">
+            <div class="card-body">
+                <h2 class="card-title text-base mb-3"><i class="bi bi-bicycle text-primary"></i> Desempeño de repartidores</h2>
+                <canvas id="chartRepartidores"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const colorPrimary = '#1e40af';
+const colorSecondary = '#facc15';
+const colorError = '#ef4444';
+const colorSuccess = '#22c55e';
+
+new Chart(document.getElementById('chartVentasDia'), {
+    type: 'line',
+    data: {
+        labels: {{ labels_dias|safe }},
+        datasets: [{
+            label: 'Ingresos (S/)',
+            data: {{ datos_ingresos|safe }},
+            borderColor: colorPrimary,
+            backgroundColor: colorPrimary + '20',
+            fill: true,
+            tension: 0.3,
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('chartTopProductos'), {
+    type: 'bar',
+    data: {
+        labels: {{ labels_productos|safe }},
+        datasets: [{
+            label: 'Unidades vendidas',
+            data: {{ datos_productos|safe }},
+            backgroundColor: colorSecondary,
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } }
+    }
+});
+
+new Chart(document.getElementById('chartHorario'), {
+    type: 'bar',
+    data: {
+        labels: {{ labels_horas|safe }},
+        datasets: [{
+            label: 'Ventas',
+            data: {{ datos_horas|safe }},
+            backgroundColor: colorPrimary,
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('chartEstados'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ labels_estados|safe }},
+        datasets: [{
+            data: {{ datos_estados|safe }},
+            backgroundColor: [colorPrimary, colorSecondary, '#60a5fa', colorSuccess, colorError, '#94a3b8'],
+        }]
+    },
+    options: { responsive: true }
+});
+
+new Chart(document.getElementById('chartRepartidores'), {
+    type: 'bar',
+    data: {
+        labels: {{ labels_repartidores|safe }},
+        datasets: [
+            { label: 'Completadas', data: {{ datos_completadas|safe }}, backgroundColor: colorSuccess },
+            { label: 'Fallidas', data: {{ datos_fallidas|safe }}, backgroundColor: colorError },
+        ]
+    },
+    options: { responsive: true }
+});
+</script>
+{% endblock %}
