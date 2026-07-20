@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -6,6 +8,7 @@ from logistica.models import Entrega
 from usuarios.decorators import requiere_rol
 from usuarios.models import Usuario, notificar
 
+logger = logging.getLogger(__name__)
 
 @login_required
 @requiere_rol(Usuario.Rol.REPARTIDOR)
@@ -40,6 +43,10 @@ def actualizar_estado_entrega(request, entrega_id):
         elif nuevo_estado == Entrega.Estado.FALLIDA:
             motivo = request.POST.get('motivo', Entrega.MotivoFallo.OTRO)
             entrega.reprogramar(motivo)
+            logger.warning(
+                f"Entrega fallida: pedido {entrega.pedido.numero_orden}, "
+                f"motivo: {motivo}, repartidor: {request.user.username}"
+            )
             messages.warning(request, "Entrega marcada como fallida.")
         elif nuevo_estado in Entrega.Estado.values:
             entrega.estado = nuevo_estado

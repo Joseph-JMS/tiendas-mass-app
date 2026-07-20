@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from django.contrib import messages
@@ -10,6 +11,7 @@ from catalogo.models import Producto, Categoria
 from usuarios.decorators import requiere_rol
 from usuarios.models import Usuario
 
+logger = logging.getLogger(__name__)
 
 def lista_productos(request):
     categoria_id = request.GET.get('categoria')
@@ -48,6 +50,12 @@ def panel_productos(request):
         fecha_vencimiento__lte=timezone.now().date() + timedelta(days=7)
     )
 
+    if stock_bajo.exists():
+        logger.warning(
+            f"Panel de productos: {stock_bajo.count()} producto(s) con stock bajo "
+            f"(revisado por {request.user.username})"
+        )
+
     return render(request, 'catalogo/panel_productos.html', {
         'productos': productos,
         'stock_bajo': stock_bajo,
@@ -61,7 +69,11 @@ def crear_producto(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            producto = form.save()
+            logger.info(
+                f"Producto creado: '{producto.nombre}' (id={producto.id}) "
+                f"por {request.user.username}"
+            )
             messages.success(request, "Producto creado con éxito.")
             return redirect('catalogo:panel_productos')
     else:
@@ -77,6 +89,10 @@ def editar_producto(request, producto_id):
         form = ProductoForm(request.POST, request.FILES, instance=producto)
         if form.is_valid():
             form.save()
+            logger.info(
+                f"Producto editado: '{producto.nombre}' (id={producto.id}) "
+                f"por {request.user.username}"
+            )
             messages.success(request, "Producto actualizado.")
             return redirect('catalogo:panel_productos')
     else:
@@ -91,5 +107,9 @@ def eliminar_producto(request, producto_id):
     if request.method == 'POST':
         producto.activo = False  # borrado lógico, no físico
         producto.save(update_fields=['activo'])
+        logger.warning(
+            f"Producto desactivado: '{producto.nombre}' (id={producto.id}) "
+            f"por {request.user.username}"
+        )
         messages.success(request, "Producto desactivado.")
     return redirect('catalogo:panel_productos')

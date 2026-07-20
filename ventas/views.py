@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -9,6 +11,7 @@ from logistica.models import Zona
 from ventas.carrito import Carrito
 from ventas.models import Pedido, DetallePedido
 
+logger = logging.getLogger(__name__)
 
 @login_required
 def mis_pedidos(request):
@@ -121,5 +124,8 @@ def cancelar_pedido(request, pedido_id):
     if not hasattr(pedido, 'pago'):
         pedido.estado = Pedido.Estado.CANCELADO
         pedido.save(update_fields=['estado'])
+        logger.warning(
+            f"Pedido cancelado: {pedido.numero_orden} por {request.user.username}"
+        )
         messages.success(request, "Pedido cancelado correctamente.")
     return redirect('ventas:mis_pedidos')

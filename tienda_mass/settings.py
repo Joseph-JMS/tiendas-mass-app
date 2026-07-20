@@ -155,3 +155,21 @@ NPM_BIN_PATH = r"C:\nvm4w\nodejs\npm.cmd"
 LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = 'usuarios:redirigir'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'base_datos': {
+            'class': 'soporte.logging_handler.BaseDatosLogHandler',
+            'level': 'WARNING',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'base_datos'],
+        'level': 'WARNING',
+    },
+}

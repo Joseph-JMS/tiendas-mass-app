@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -11,6 +13,7 @@ from pagos.pdf_utils import generar_pdf_comprobante
 from usuarios.models import PerfilRepartidor, notificar
 from ventas.models import Pedido, Venta
 
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 @login_required
@@ -34,6 +37,10 @@ def procesar_pago(request, pedido_id):
                 producto = Producto.objects.select_for_update().get(id=detalle.producto_id)
                 if detalle.cantidad > producto.stock:
                     transaction.set_rollback(True)
+                    logger.warning(
+                        f"Pago rechazado: stock insuficiente para '{producto.nombre}' "
+                        f"(pedido {pedido.numero_orden}, usuario {request.user.username})"
+                    )
                     messages.error(
                         request,
                         f"Lo sentimos, '{producto.nombre}' ya no tiene stock suficiente. "
@@ -99,6 +106,10 @@ def procesar_pago(request, pedido_id):
         else:
             messages.success(request, f"Pago confirmado. Comprobante {comprobante}.")
 
+        logger.info(
+            f"Pago confirmado: pedido {pedido.numero_orden}, monto S/ {pedido.total}, "
+            f"método {metodo}, usuario {request.user.username}"
+        )
         return redirect('pagos:confirmacion', pedido_id=pedido.id)
 
     return render(request, 'pagos/procesar.html', {
