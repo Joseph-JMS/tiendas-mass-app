@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Mantenimiento del sistema - Tienda Mass{% endblock %}
+{% block content %}
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-tools"></i> Mantenimiento del sistema</h1>
+    <p class="opacity-90 text-sm">Diagnóstico técnico y registro de errores</p>
+</div>
+
+<div class="container mx-auto p-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">Eventos (24h)</span>
+                    <i class="bi bi-activity text-2xl text-primary"></i>
+                </div>
+                <p class="text-2xl font-bold mt-1">{{ total_24h }}</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">Errores (24h)</span>
+                    <i class="bi bi-exclamation-circle text-2xl text-error"></i>
+                </div>
+                <p class="text-2xl font-bold text-error mt-1">{{ errores_24h }}</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">Críticos (24h)</span>
+                    <i class="bi bi-shield-exclamation text-2xl text-error"></i>
+                </div>
+                <p class="text-2xl font-bold text-error mt-1">{{ criticos_24h }}</p>
+            </div>
+        </div>
+    </div>
+
+    {% if criticos_24h == 0 and errores_24h == 0 %}
+    <div class="alert alert-success mb-6">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>El sistema no presenta errores críticos en las últimas 24 horas.</span>
+    </div>
+    {% endif %}
+
+    <div class="card bg-base-100 shadow-md mb-4">
+        <div class="card-body py-4">
+            <form method="get" class="flex flex-col sm:flex-row gap-3 items-center">
+                <select name="nivel" class="select select-bordered select-sm bg-base-200" onchange="this.form.submit()">
+                    <option value="">Todos los niveles</option>
+                    {% for valor, etiqueta in niveles %}
+                        <option value="{{ valor }}" {% if valor == nivel_filtro %}selected{% endif %}>{{ etiqueta }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="modulo" class="select select-bordered select-sm bg-base-200" onchange="this.form.submit()">
+                    <option value="">Todos los módulos</option>
+                    {% for m in modulos_disponibles %}
+                        <option value="{{ m }}" {% if m == modulo_filtro %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+
+                <form method="post" action="{% url 'soporte:registrar_log_prueba' %}" class="sm:ml-auto">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline btn-primary">
+                        <i class="bi bi-plus-circle"></i> Generar log de prueba
+                    </button>
+                </form>
+            </form>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+            <h2 class="card-title text-lg mb-4">
+                <i class="bi bi-journal-text text-primary"></i> Registro de eventos
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr><th>Nivel</th><th>Módulo</th><th>Mensaje</th><th>Fecha</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>
+                                <span class="badge
+                                    {% if log.nivel == 'critical' %}badge-error
+                                    {% elif log.nivel == 'error' %}badge-error badge-outline
+                                    {% elif log.nivel == 'warning' %}badge-warning
+                                    {% else %}badge-info{% endif %}">
+                                    {{ log.get_nivel_display }}
+                                </span>
+                            </td>
+                            <td class="font-mono text-xs">{{ log.modulo }}</td>
+                            <td class="text-sm">{{ log.mensaje }}</td>
+                            <td class="text-xs text-gray-500">{{ log.fecha|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-gray-500 py-10">
+                            <i class="bi bi-inbox text-3xl block mb-2"></i>
+                            No hay eventos registrados.
+                        </td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

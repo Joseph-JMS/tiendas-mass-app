@@ -1,10 +1,13 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from soporte.forms import TicketForm
-from soporte.models import Ticket
+from soporte.models import Ticket, LogError
 from usuarios.decorators import requiere_rol
 from usuarios.models import Usuario
 
@@ -65,3 +68,61 @@ def atender_ticket(request, ticket_id):
             messages.success(request, "Ticket actualizado.")
 
     return redirect('soporte:lista_tickets')
+
+
+@login_required
+@requiere_rol(Usuario.Rol.SOPORTE, Usuario.Rol.ADMIN)
+def panel_mantenimiento(request):
+    nivel_filtro = request.GET.get('nivel', '')
+    modulo_filtro = request.GET.get('modulo', '')
+
+    logs = LogError.objects.all()
+
+    if nivel_filtro:
+        logs = logs.filter(nivel=nivel_filtro)
+    if modulo_filtro:
+        logs = logs.filter(modulo=modulo_filtro)
+
+    logs = logs[:100]  # límite razonable para no sobrecargar la vista
+
+    # Resumen rápido de salud del sistema (últimas 24h)
+    hace_24h = timezone.now() - timedelta(hours=24)
+    resumen = LogError.objects.filter(fecha__gte=hace_24h).aggregate(
+        total=Count('id'),
+    )
+    criticos_24h = LogError.objects.filter(
+        fecha__gte=hace_24h, nivel=LogError.Nivel.CRITICAL
+    ).count()
+    errores_24h = LogError.objects.filter(
+        fecha__gte=hace_24h, nivel=LogError.Nivel.ERROR
+    ).count()
+
+    modulos_disponibles = (
+        LogError.objects.values_list('modulo', flat=True).distinct()
+    )
+
+    return render(request, 'soporte/panel_mantenimiento.html', {
+        'logs': logs,
+        'niveles': LogError.Nivel.choices,
+        'nivel_filtro': nivel_filtro,
+        'modulo_filtro': modulo_filtro,
+        'modulos_disponibles': modulos_disponibles,
+        'total_24h': resumen['total'] or 0,
+        'criticos_24h': criticos_24h,
+        'errores_24h': errores_24h,
+    })
+
+
+@login_required
+@requiere_rol(Usuario.Rol.SOPORTE, Usuario.Rol.ADMIN)
+def registrar_log_prueba(request):
+    """Utilidad de diagnóstico: permite generar un log de prueba para verificar
+    que el sistema de registro de errores funciona correctamente."""
+    if request.method == 'POST':
+        LogError.objects.create(
+            nivel=LogError.Nivel.INFO,
+            modulo='soporte',
+            mensaje=f"Log de prueba generado manualmente por {request.user.username}",
+        )
+        messages.success(request, "Log de prueba registrado correctamente.")
+    return redirect('soporte:panel_mantenimiento')

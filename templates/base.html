@@ -29,10 +29,12 @@
                         <li><a href="{% url 'catalogo:panel_productos' %}"><i class="bi bi-box-seam"></i> Productos</a></li>
                         <li><a href="{% url 'reportes:reporte_repartidores' %}"><i class="bi bi-bicycle"></i> Repartidores</a></li>
                         <li><a href="{% url 'soporte:lista_tickets' %}"><i class="bi bi-headset"></i> Soporte</a></li>
+                        <li><a href="{% url 'soporte:panel_mantenimiento' %}"><i class="bi bi-tools"></i> Mantenimiento</a></li>
                     {% elif user.rol == 'repartidor' %}
                         <li><a href="{% url 'logistica:mis_entregas' %}"><i class="bi bi-truck"></i> Mis entregas</a></li>
                     {% elif user.rol == 'soporte' %}
                         <li><a href="{% url 'soporte:lista_tickets' %}"><i class="bi bi-headset"></i> Panel soporte</a></li>
+                        <li><a href="{% url 'soporte:panel_mantenimiento' %}"><i class="bi bi-tools"></i> Mantenimiento</a></li>
                     {% endif %}
                 </ul>
                 <div class="dropdown dropdown-end">
