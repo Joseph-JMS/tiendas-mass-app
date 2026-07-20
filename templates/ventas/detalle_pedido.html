@@ -92,7 +92,13 @@
                 <p class="flex items-center gap-2"><i class="bi bi-credit-card text-primary"></i> Método de pago: {{ pedido.pago.get_metodo_display }}</p>
                 <p class="flex items-center gap-2"><i class="bi bi-check-circle text-primary"></i> Estado del pago: {{ pedido.pago.get_estado_display }}</p>
                 {% if pedido.pago.comprobante %}
-                    <p class="flex items-center gap-2"><i class="bi bi-file-earmark-text text-primary"></i> Comprobante: {{ pedido.pago.comprobante }}</p>
+                    <p class="flex items-center gap-2">
+                        <i class="bi bi-file-earmark-text"></i> Comprobante: {{ pedido.pago.comprobante }}
+                    </p>
+                    <a href="{% url 'pagos:descargar_comprobante' pedido.id %}" target="_blank"
+                       class="btn btn-sm btn-outline btn-primary mt-2">
+                        <i class="bi bi-file-earmark-pdf"></i> Ver comprobante PDF
+                    </a>
                 {% endif %}
             </div>
             {% endif %}

@@ -26,11 +26,14 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-2">
+                <a href="{% url 'pagos:descargar_comprobante' pedido.id %}" target="_blank" class="btn btn-outline btn-primary flex-1">
+                    <i class="bi bi-file-earmark-pdf"></i> Comprobante
+                </a>
                 <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-outline btn-primary flex-1">
                     <i class="bi bi-eye"></i> Ver detalle
                 </a>
                 <a href="{% url 'catalogo:lista_productos' %}" class="btn btn-primary flex-1 border-none">
-                    <i class="bi bi-shop"></i> Seguir comprando
+                    <i class="bi bi-shop"></i> Catalogo
                 </a>
             </div>
         </div>

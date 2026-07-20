@@ -7,4 +7,5 @@ app_name = 'pagos'
 urlpatterns = [
     path('procesar/<int:pedido_id>/', views.procesar_pago, name='procesar'),
     path('confirmacion/<int:pedido_id>/', views.confirmacion_pago, name='confirmacion'),
+    path('comprobante/<int:pedido_id>/', views.descargar_comprobante, name='descargar_comprobante'),
 ]

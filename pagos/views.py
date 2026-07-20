@@ -1,11 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
 from catalogo.models import Producto
 from logistica.models import Zona, Entrega
 from pagos.models import Pago, Comprobante
+from pagos.pdf_utils import generar_pdf_comprobante
 from usuarios.models import PerfilRepartidor
 from ventas.models import Pedido, Venta
 
@@ -103,3 +105,17 @@ def procesar_pago(request, pedido_id):
 def confirmacion_pago(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id, cliente=request.user)
     return render(request, 'pagos/confirmacion.html', {'pedido': pedido})
+
+
+@login_required
+def descargar_comprobante(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id, cliente=request.user)
+
+    if not hasattr(pedido, 'pago') or not hasattr(pedido.pago, 'comprobante'):
+        messages.error(request, "Este pedido aún no tiene un comprobante generado.")
+        return redirect('ventas:mis_pedidos')
+
+    buffer = generar_pdf_comprobante(pedido)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="comprobante_{pedido.numero_orden}.pdf"'
+    return response
