@@ -9,7 +9,7 @@ from django.utils import timezone
 from soporte.forms import TicketForm
 from soporte.models import Ticket, LogError
 from usuarios.decorators import requiere_rol
-from usuarios.models import Usuario
+from usuarios.models import Usuario, notificar
 
 
 @login_required
@@ -66,6 +66,12 @@ def atender_ticket(request, ticket_id):
             ticket.asignado_a = request.user
             ticket.save()
             messages.success(request, "Ticket actualizado.")
+
+            notificar(
+                ticket.cliente,
+                f"Tu ticket #{ticket.id} cambió a estado: {ticket.get_estado_display()}.",
+                url="/soporte/mis-tickets/"
+            )
 
     return redirect('soporte:lista_tickets')
 

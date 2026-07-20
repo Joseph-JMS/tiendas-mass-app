@@ -61,3 +61,22 @@ class PerfilRepartidor(models.Model):
 
     def __str__(self):
         return f"Repartidor: {self.empleado.usuario.username}"
+
+
+class Notificacion(models.Model):
+    usuario = models.ForeignKey(
+        Usuario, on_delete=models.CASCADE, related_name='notificaciones'
+    )
+    mensaje = models.CharField(max_length=255)
+    url = models.CharField(max_length=255, blank=True)
+    leida = models.BooleanField(default=False)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+
+    def __str__(self):
+        return f"{self.usuario.username}: {self.mensaje[:40]}"
+
+def notificar(usuario, mensaje, url=""):
+    Notificacion.objects.create(usuario=usuario, mensaje=mensaje, url=url)

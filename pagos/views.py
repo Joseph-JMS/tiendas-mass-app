@@ -8,7 +8,7 @@ from catalogo.models import Producto
 from logistica.models import Zona, Entrega
 from pagos.models import Pago, Comprobante
 from pagos.pdf_utils import generar_pdf_comprobante
-from usuarios.models import PerfilRepartidor
+from usuarios.models import PerfilRepartidor, notificar
 from ventas.models import Pedido, Venta
 
 
@@ -87,6 +87,12 @@ def procesar_pago(request, pedido_id):
 
             pedido.estado = Pedido.Estado.CONFIRMADO
             pedido.save(update_fields=['estado'])
+
+            notificar(
+                pedido.cliente,
+                f"Tu pedido {pedido.numero_orden} fue confirmado y está siendo preparado.",
+                url=f"/ventas/mis-pedidos/{pedido.id}/"
+            )
 
         if not repartidor_disponible:
             messages.warning(request, "Pago confirmado, pero no hay repartidores disponibles en tu zona por ahora.")

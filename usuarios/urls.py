@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('registro/', views.RegistroClienteView.as_view(), name='registro'),
     path('redirigir/', views.redirigir_por_rol, name='redirigir'),
+    path('notificaciones/', views.ver_notificaciones, name='notificaciones'),
 ]

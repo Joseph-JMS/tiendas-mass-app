@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
 from usuarios.forms import RegistroClienteForm
-from usuarios.models import PerfilCliente, Usuario
+from usuarios.models import PerfilCliente, Usuario, Notificacion
 
 
 # Create your views here.
@@ -30,3 +30,10 @@ def redirigir_por_rol(request):
         Usuario.Rol.SOPORTE: 'soporte:lista_tickets',
     }
     return redirect(rutas.get(rol, 'catalogo:lista_productos'))
+
+
+@login_required
+def ver_notificaciones(request):
+    notificaciones = Notificacion.objects.filter(usuario=request.user)[:20]
+    Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+    return render(request, 'usuarios/notificaciones.html', {'notificaciones': notificaciones})
