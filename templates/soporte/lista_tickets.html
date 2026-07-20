@@ -1,46 +1,72 @@
 {% extends 'base.html' %}
 {% block title %}Panel de soporte - Tienda Mass{% endblock %}
 {% block content %}
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-headset"></i> Panel de soporte técnico</h1>
+    <p class="opacity-90 text-sm">Gestiona las solicitudes de los clientes</p>
+</div>
+
 <div class="container mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">Panel de soporte técnico</h1>
+    <div class="card bg-base-100 shadow-md mb-4">
+        <div class="card-body py-4">
+            <form method="get" class="flex items-center gap-3">
+                <label class="label-text font-medium"><i class="bi bi-funnel"></i> Filtrar por estado:</label>
+                <select name="estado" class="select select-bordered select-sm bg-base-200" onchange="this.form.submit()">
+                    <option value="">Todos los estados</option>
+                    {% for valor, etiqueta in estados %}
+                        <option value="{{ valor }}" {% if valor == estado_filtro %}selected{% endif %}>{{ etiqueta }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
 
-    <form method="get" class="mb-4">
-        <select name="estado" class="select select-bordered" onchange="this.form.submit()">
-            <option value="">Todos los estados</option>
-            {% for valor, etiqueta in estados %}
-                <option value="{{ valor }}" {% if valor == estado_filtro %}selected{% endif %}>{{ etiqueta }}</option>
-            {% endfor %}
-        </select>
-    </form>
-
-    <div class="overflow-x-auto">
-        <table class="table">
-            <thead>
-                <tr><th>#</th><th>Cliente</th><th>Asunto</th><th>Categoría</th><th>Estado</th><th>Acción</th></tr>
-            </thead>
-            <tbody>
-                {% for t in tickets %}
-                <tr>
-                    <td>{{ t.id }}</td>
-                    <td>{{ t.cliente.username }}</td>
-                    <td>{{ t.asunto }}</td>
-                    <td>{{ t.get_categoria_display }}</td>
-                    <td>{{ t.get_estado_display }}</td>
-                    <td>
-                        <form method="post" action="{% url 'soporte:atender_ticket' t.id %}" class="flex gap-2">
-                            {% csrf_token %}
-                            <select name="estado" class="select select-bordered select-sm">
-                                <option value="en_proceso">En proceso</option>
-                                <option value="resuelto">Resuelto</option>
-                                <option value="cerrado">Cerrado</option>
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr><th>#</th><th>Cliente</th><th>Asunto</th><th>Categoría</th><th>Estado</th><th>Acción</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for t in tickets %}
+                        <tr>
+                            <td class="font-medium">{{ t.id }}</td>
+                            <td>{{ t.cliente.username }}</td>
+                            <td>{{ t.asunto }}</td>
+                            <td>{{ t.get_categoria_display }}</td>
+                            <td>
+                                <span class="badge
+                                    {% if t.estado == 'resuelto' or t.estado == 'cerrado' %}badge-success
+                                    {% elif t.estado == 'en_proceso' %}badge-warning
+                                    {% else %}badge-info{% endif %}">
+                                    {{ t.get_estado_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'soporte:atender_ticket' t.id %}" class="flex gap-2">
+                                    {% csrf_token %}
+                                    <select name="estado" class="select select-bordered select-sm bg-base-200">
+                                        <option value="en_proceso">En proceso</option>
+                                        <option value="resuelto">Resuelto</option>
+                                        <option value="cerrado">Cerrado</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary border-none">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center text-gray-500 py-10">
+                            <i class="bi bi-inbox text-3xl block mb-2"></i>
+                            No hay tickets registrados.
+                        </td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

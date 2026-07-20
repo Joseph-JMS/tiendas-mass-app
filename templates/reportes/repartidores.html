@@ -1,25 +1,45 @@
 {% extends 'base.html' %}
 {% block title %}Repartidores - Tienda Mass{% endblock %}
 {% block content %}
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-bicycle"></i> Desempeño de repartidores</h1>
+    <p class="opacity-90 text-sm">Estado y rendimiento del equipo de entregas</p>
+</div>
+
 <div class="container mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">Desempeño de repartidores</h1>
-    <div class="overflow-x-auto">
-        <table class="table">
-            <thead>
-                <tr><th>Repartidor</th><th>Zona</th><th>Estado</th><th>Entregadas</th><th>Fallidas</th></tr>
-            </thead>
-            <tbody>
-                {% for r in repartidores %}
-                <tr>
-                    <td>{{ r.empleado.usuario.username }}</td>
-                    <td>{{ r.zona.nombre|default:"-" }}</td>
-                    <td>{{ r.get_estado_display }}</td>
-                    <td>{{ r.entregas_completadas }}</td>
-                    <td>{{ r.entregas_fallidas }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr><th>Repartidor</th><th>Zona</th><th>Estado</th><th>Entregadas</th><th>Fallidas</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for r in repartidores %}
+                        <tr>
+                            <td class="font-medium">{{ r.empleado.usuario.username }}</td>
+                            <td>{{ r.zona.nombre|default:"-" }}</td>
+                            <td>
+                                <span class="badge
+                                    {% if r.estado == 'disponible' %}badge-success
+                                    {% elif r.estado == 'en_ruta' %}badge-info
+                                    {% else %}badge-neutral{% endif %}">
+                                    {{ r.get_estado_display }}
+                                </span>
+                            </td>
+                            <td><span class="badge badge-success badge-outline">{{ r.entregas_completadas }}</span></td>
+                            <td><span class="badge badge-error badge-outline">{{ r.entregas_fallidas }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-gray-500 py-10">
+                            <i class="bi bi-bicycle text-3xl block mb-2"></i>
+                            No hay repartidores registrados.
+                        </td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

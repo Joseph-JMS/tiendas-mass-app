@@ -1,53 +1,91 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard - Tienda Mass{% endblock %}
 {% block content %}
-<div class="container mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">Dashboard Administrativo</h1>
+<div class="bg-gradient-to-br from-primary to-blue-900 text-primary-content py-10 px-6 text-center">
+    <h1 class="text-3xl font-extrabold mb-1"><i class="bi bi-speedometer2"></i> Dashboard Administrativo</h1>
+    <p class="opacity-90 text-sm">Resumen general de la operación de hoy</p>
+</div>
 
+<div class="container mx-auto p-6">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="stat bg-base-100 shadow rounded-box">
-            <div class="stat-title">Ingresos hoy</div>
-            <div class="stat-value text-primary">S/ {{ ingresos_hoy }}</div>
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">Ingresos hoy</span>
+                    <i class="bi bi-cash-stack text-2xl text-primary"></i>
+                </div>
+                <p class="text-2xl font-bold text-primary mt-1">S/ {{ ingresos_hoy }}</p>
+            </div>
         </div>
-        <div class="stat bg-base-100 shadow rounded-box">
-            <div class="stat-title">Ventas hoy</div>
-            <div class="stat-value">{{ cantidad_ventas_hoy }}</div>
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">Ventas hoy</span>
+                    <i class="bi bi-receipt text-2xl text-primary"></i>
+                </div>
+                <p class="text-2xl font-bold mt-1">{{ cantidad_ventas_hoy }}</p>
+            </div>
         </div>
-        <div class="stat bg-base-100 shadow rounded-box">
-            <div class="stat-title">Pedidos pendientes</div>
-            <div class="stat-value text-warning">{{ pedidos_pendientes }}</div>
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">Pedidos pendientes</span>
+                    <i class="bi bi-hourglass-split text-2xl text-warning"></i>
+                </div>
+                <p class="text-2xl font-bold text-warning mt-1">{{ pedidos_pendientes }}</p>
+            </div>
         </div>
-        <div class="stat bg-base-100 shadow rounded-box">
-            <div class="stat-title">Repartidores en ruta</div>
-            <div class="stat-value">{{ repartidores_activos }}</div>
+        <div class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">Repartidores en ruta</span>
+                    <i class="bi bi-truck text-2xl text-primary"></i>
+                </div>
+                <p class="text-2xl font-bold mt-1">{{ repartidores_activos }}</p>
+            </div>
         </div>
     </div>
 
     {% if stock_critico %}
     <div class="alert alert-error mb-6">
-        <span>⚠️ {{ stock_critico.count }} producto(s) en stock crítico:
-        {% for p in stock_critico %}{{ p.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>
+            {{ stock_critico.count }} producto(s) en stock crítico:
+            {% for p in stock_critico %}{{ p.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}
         </span>
     </div>
     {% endif %}
 
-    <h2 class="text-xl font-bold mb-4">Productos más vendidos</h2>
-    <div class="overflow-x-auto">
-        <table class="table">
-            <thead><tr><th>Producto</th><th>Unidades vendidas</th></tr></thead>
-            <tbody>
-                {% for p in productos_top %}
-                <tr><td>{{ p.producto__nombre }}</td><td>{{ p.total_vendido }}</td></tr>
-                {% empty %}
-                <tr><td colspan="2">Aún no hay ventas registradas.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+            <h2 class="card-title text-lg mb-4">
+                <i class="bi bi-graph-up-arrow text-primary"></i> Productos más vendidos
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead><tr><th>Producto</th><th>Unidades vendidas</th></tr></thead>
+                    <tbody>
+                        {% for p in productos_top %}
+                        <tr>
+                            <td>{{ p.producto__nombre }}</td>
+                            <td class="font-medium">{{ p.total_vendido }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="text-center text-gray-500 py-6">Aún no hay ventas registradas.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="mt-6">
-        <a href="{% url 'catalogo:panel_productos' %}" class="btn btn-outline">Gestionar productos</a>
-        <a href="{% url 'reportes:reporte_repartidores' %}" class="btn btn-outline">Ver repartidores</a>
+    <div class="flex flex-col sm:flex-row gap-3 mt-6">
+        <a href="{% url 'catalogo:panel_productos' %}" class="btn btn-primary border-none">
+            <i class="bi bi-box-seam"></i> Gestionar productos
+        </a>
+        <a href="{% url 'reportes:reporte_repartidores' %}" class="btn btn-outline btn-primary">
+            <i class="bi bi-bicycle"></i> Ver repartidores
+        </a>
     </div>
 </div>
 {% endblock %}
